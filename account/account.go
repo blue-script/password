@@ -12,7 +12,7 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}<>?,.")
 
 type Account struct {
-	login    string
+	login    string 
 	password string
 	url      string
 }
