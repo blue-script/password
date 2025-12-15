@@ -8,25 +8,62 @@ import (
 )
 
 func main() {
-	files.ReadFile()
-	files.WriteFile("Hello! I'm file", "file.txt")
-	login := promtData("Введите логин")
-	password := promtData("Введите пароль")
-	url := promtData("Введите URL")
+	fmt.Println("Password manager")
+Menu:
+	for {
+		choice := getMenuChoice()
 
-	myAccount, err := account.NewAccountWIthTimeStamp(login, password, url)
+		switch choice {
+		case 1:
+			createAccount()
+		case 2:
+			findAccount()
+		case 3:
+			removeAccount()
+		default:
+			fmt.Println("Выход из программы.")
+			break Menu
+		}
+	}
+}
+
+func getMenuChoice() int8 {
+	var choice int8
+	fmt.Println("Меню:")
+	fmt.Println("1. Создать аккаунт")
+	fmt.Println("2. Найти аккаунт")
+	fmt.Println("3. Удалить аккаунт")
+	fmt.Println("4. Выход")
+	fmt.Scan(&choice)
+	return choice
+}
+
+func createAccount() {
+	login := promptData("Введите логин")
+	password := promptData("Введите пароль")
+	url := promptData("Введите URL")
+
+	myAccount, err := account.NewAccount(login, password, url)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		return
 	}
 
-	myAccount.OutputPassword()
-	fmt.Println(myAccount)
+	file, err := myAccount.ToBytes()
+	if err != nil {
+		fmt.Println("Not successful marshal account")
+		return
+	}
+	files.WriteFile(file, "data.json")
 }
 
-func promtData(prompt string) string {
-	fmt.Print(prompt + ": ")
+func findAccount() {}
+
+func removeAccount() {}
+
+func promptData(prompt string) string {
+	fmt.Println(prompt + ": ")
 	var res string
-	fmt.Scanln(&res)
+	fmt.Scan(&res)
 	return res
 }

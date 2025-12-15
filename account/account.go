@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/json"
 	"errors"
 	"math/rand/v2"
 	"net/url"
@@ -12,19 +13,23 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}<>?,.")
 
 type Account struct {
-	login    string 
-	password string
-	url      string
-}
-
-type accountWithTimeStamp struct {
-	createdAt time.Time
-	updatedAt time.Time
-	Account
+	Login     string `json:"login" xml:"test"`
+	Password  string `json:"password"`
+	Url       string `json:"url"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (acc *Account) OutputPassword() {
-	color.Cyan(acc.login, acc.password, acc.url)
+	color.Cyan(acc.Login, acc.Password, acc.Url)
+}
+
+func (acc *Account) ToBytes() ([]byte, error) {
+	file, err := json.Marshal(acc)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
 func (acc *Account) generatePassword(n int) {
@@ -35,10 +40,10 @@ func (acc *Account) generatePassword(n int) {
 		passwordRune[i] = letterRunes[randNumber]
 	}
 
-	acc.password = string(passwordRune)
+	acc.Password = string(passwordRune)
 }
 
-func NewAccountWIthTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
 		return nil, errors.New("EMPTY_LOGIN")
 	}
@@ -46,14 +51,12 @@ func NewAccountWIthTimeStamp(login, password, urlString string) (*accountWithTim
 	if err != nil {
 		return nil, errors.New("INVALID_URL")
 	}
-	acc := &accountWithTimeStamp{
-		createdAt: time.Now(),
-		updatedAt: time.Now(),
-		Account: Account{
-			url:      urlString,
-			login:    login,
-			password: password,
-		},
+	acc := &Account{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Url:       urlString,
+		Login:     login,
+		Password:  password,
 	}
 	if password == "" {
 		acc.generatePassword(8)
@@ -61,23 +64,3 @@ func NewAccountWIthTimeStamp(login, password, urlString string) (*accountWithTim
 
 	return acc, nil
 }
-
-// func newAccount(login, password, urlString string) (*account, error) {
-// 	if login == "" {
-// 		return nil, errors.New("EMPTY_LOGIN")
-// 	}
-// 	_, err := url.ParseRequestURI(urlString)
-// 	if err != nil {
-// 		return nil, errors.New("INVALID_URL")
-// 	}
-// 	acc := &account{
-// 		login:    login,
-// 		password: password,
-// 		url:      urlString,
-// 	}
-// 	if password == "" {
-// 		acc.generatePassword(8)
-// 	}
-
-// 	return acc, nil
-// }
