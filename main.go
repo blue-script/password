@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/blue-script/password/account"
-	"github.com/blue-script/password/files"
 )
 
 func main() {
@@ -50,13 +49,6 @@ func createAccount() {
 	}
 	vault := account.NewVault()
 	vault.AddAccount(*myAccount)
-
-	data, err := vault.ToBytes()
-	if err != nil {
-		fmt.Println("Not successful marshal account")
-		return
-	}
-	files.WriteFile(data, "data.json")
 }
 
 func findAccount() {}
