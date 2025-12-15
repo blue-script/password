@@ -48,13 +48,15 @@ func createAccount() {
 		fmt.Println(err)
 		return
 	}
+	vault := account.NewVault()
+	vault.AddAccount(*myAccount)
 
-	file, err := myAccount.ToBytes()
+	data, err := vault.ToBytes()
 	if err != nil {
 		fmt.Println("Not successful marshal account")
 		return
 	}
-	files.WriteFile(file, "data.json")
+	files.WriteFile(data, "data.json")
 }
 
 func findAccount() {}

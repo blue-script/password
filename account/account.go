@@ -1,7 +1,6 @@
 package account
 
 import (
-	"encoding/json"
 	"errors"
 	"math/rand/v2"
 	"net/url"
@@ -13,23 +12,15 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}<>?,.")
 
 type Account struct {
-	Login     string `json:"login" xml:"test"`
-	Password  string `json:"password"`
-	Url       string `json:"url"`
+	Login     string    `json:"login" xml:"test"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (acc *Account) OutputPassword() {
 	color.Cyan(acc.Login, acc.Password, acc.Url)
-}
-
-func (acc *Account) ToBytes() ([]byte, error) {
-	file, err := json.Marshal(acc)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
 }
 
 func (acc *Account) generatePassword(n int) {
