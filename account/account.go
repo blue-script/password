@@ -1,4 +1,4 @@
-package main
+package account
 
 import (
 	"errors"
@@ -22,7 +22,7 @@ type accountWithTimeStamp struct {
 	account
 }
 
-func (acc *account) outputPassword() {
+func (acc *account) OutputPassword() {
 	fmt.Println(acc.login, acc.password, acc.url)
 }
 
@@ -37,7 +37,7 @@ func (acc *account) generatePassword(n int) {
 	acc.password = string(passwordRune)
 }
 
-func newAccountWIthTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+func NewAccountWIthTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
 	if login == "" {
 		return nil, errors.New("EMPTY_LOGIN")
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/blue-script/password/account"
 )
 
 func main() {
@@ -9,14 +10,13 @@ func main() {
 	password := promtData("Введите пароль")
 	url := promtData("Введите URL")
 
-	myAccount, err := newAccountWIthTimeStamp(login, password, url)
+	myAccount, err := account.NewAccountWIthTimeStamp(login, password, url)
 	if err != nil {
 		fmt.Print(err)
 		return
 	}
 
-	myAccount.generatePassword(8)
-	myAccount.outputPassword()
+	myAccount.OutputPassword()
 	fmt.Println(myAccount)
 }
 
