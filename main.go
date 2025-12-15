@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/blue-script/password/account"
+	"github.com/blue-script/password/files"
 )
 
 func main() {
@@ -17,6 +19,7 @@ func main() {
 	}
 
 	myAccount.OutputPassword()
+	files.WriteFile()
 	fmt.Println(myAccount)
 }
 

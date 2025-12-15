@@ -2,15 +2,16 @@ package account
 
 import (
 	"errors"
-	"fmt"
 	"math/rand/v2"
 	"net/url"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{}<>?,.")
 
-type account struct {
+type Account struct {
 	login    string
 	password string
 	url      string
@@ -19,14 +20,14 @@ type account struct {
 type accountWithTimeStamp struct {
 	createdAt time.Time
 	updatedAt time.Time
-	account
+	Account
 }
 
-func (acc *account) OutputPassword() {
-	fmt.Println(acc.login, acc.password, acc.url)
+func (acc *Account) OutputPassword() {
+	color.Cyan(acc.login, acc.password, acc.url)
 }
 
-func (acc *account) generatePassword(n int) {
+func (acc *Account) generatePassword(n int) {
 	passwordRune := make([]rune, n)
 
 	for i := range passwordRune {
@@ -48,7 +49,7 @@ func NewAccountWIthTimeStamp(login, password, urlString string) (*accountWithTim
 	acc := &accountWithTimeStamp{
 		createdAt: time.Now(),
 		updatedAt: time.Now(),
-		account: account{
+		Account: Account{
 			url:      urlString,
 			login:    login,
 			password: password,
