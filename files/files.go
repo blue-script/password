@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/blue-script/password/output"
+	"github.com/fatih/color"
 )
 
 type JsonDb struct {
@@ -36,5 +37,5 @@ func (db *JsonDb) Write(content []byte) {
 		output.PrintError(err)
 		return
 	}
-	fmt.Println("Writing to file successful")
+	color.Green("Writing to file successful")
 }
