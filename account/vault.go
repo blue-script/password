@@ -2,51 +2,104 @@ package account
 
 import (
 	"encoding/json"
-	"fmt"
+	"slices"
+	"strings"
 	"time"
 
-	"github.com/blue-script/password/files"
+	"github.com/blue-script/password/output"
 	"github.com/fatih/color"
 )
+
+type ByteReader interface {
+	Read() ([]byte, error)
+}
+
+type ByteWriter interface {
+	Write([]byte)
+}
+
+type Db interface {
+	ByteReader
+	ByteWriter
+}
 
 type Vault struct {
 	Accounts  []Account `json:"accounts"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func NewVault() *Vault {
-	file, err := files.ReadFile("data.json")
+type VaultWithDb struct {
+	Vault
+	db Db
+}
+
+func NewVault(db Db) *VaultWithDb {
+	file, err := db.Read()
 	if err != nil {
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		return &VaultWithDb{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
-
-	fmt.Println(string(file))
 
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
-		color.Red("Not successful unmarshal file data.json")
-		return &Vault{
-			Accounts:  []Account{},
-			UpdatedAt: time.Now(),
+		output.PrintError("Not successful unmarshal file data.json")
+		return &VaultWithDb{
+			Vault: Vault{
+				Accounts:  []Account{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
 
-	return &vault
+	return &VaultWithDb{
+		Vault: vault,
+		db:    db,
+	}
 }
 
-func (vault *Vault) AddAccount(acc Account) {
+func (vault *VaultWithDb) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
-	vault.UpdatedAt = time.Now()
-	data, err := vault.ToBytes()
-	if err != nil {
-		color.Red("Not successful marshal account")
-		return
+	vault.save()
+}
+
+func (vault *VaultWithDb) DeleteAccountByUrl(url string) bool {
+	deleteIndex := -1
+FindIndex:
+	for index, value := range vault.Accounts {
+		isMatched := value.Url == url
+		if isMatched {
+			deleteIndex = index
+			break FindIndex
+		}
 	}
-	files.WriteFile(data, "data.json")
+
+	if deleteIndex == -1 {
+		color.Red("Not found index")
+		return false
+	}
+
+	vault.Accounts = slices.Delete(vault.Accounts, deleteIndex, deleteIndex+1)
+
+	vault.save()
+	return true
+}
+
+func (vault *VaultWithDb) FindAccountsByURL(url string) []Account {
+	var results []Account
+	for _, acc := range vault.Accounts {
+		isMatched := strings.Contains(acc.Url, url)
+		if isMatched {
+			results = append(results, acc)
+		}
+	}
+	return results
 }
 
 func (vault *Vault) ToBytes() ([]byte, error) {
@@ -55,4 +108,14 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 		return nil, err
 	}
 	return file, nil
+}
+
+func (vault *VaultWithDb) save() {
+	vault.UpdatedAt = time.Now()
+	data, err := vault.Vault.ToBytes()
+	if err != nil {
+		output.PrintError("Not successful marshal account")
+		return
+	}
+	vault.db.Write(data)
 }
