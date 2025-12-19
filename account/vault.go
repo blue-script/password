@@ -3,7 +3,6 @@ package account
 import (
 	"encoding/json"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/blue-script/password/output"
@@ -91,10 +90,10 @@ FindIndex:
 	return true
 }
 
-func (vault *VaultWithDb) FindAccountsByURL(url string) []Account {
+func (vault *VaultWithDb) FindAccounts(str string, checker func(Account, string) bool) []Account {
 	var results []Account
 	for _, acc := range vault.Accounts {
-		isMatched := strings.Contains(acc.Url, url)
+		isMatched := checker(acc, str)
 		if isMatched {
 			results = append(results, acc)
 		}

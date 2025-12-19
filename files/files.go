@@ -1,7 +1,6 @@
 package files
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/blue-script/password/output"

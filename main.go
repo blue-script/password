@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/blue-script/password/account"
 	"github.com/blue-script/password/files"
@@ -9,25 +10,27 @@ import (
 	"github.com/fatih/color"
 )
 
+var menu = map[string]func(*account.VaultWithDb){
+	"1": createAccount,
+	"2": findAccountByUrl,
+	"3": findAccountByLogin,
+	"4": removeAccount,
+}
+
 func main() {
 	fmt.Println("Password manager")
 	vault := account.NewVault(files.NewJsonDb("data.json"))
 	// vault := account.NewVault(cloud.NewCloudDb("data.json"))
 Menu:
 	for {
-		choice := promptData([]string{"1. Создать аккаунт", "2. Найти аккаунт", "3. Удалить аккаунт", "4. Выход", "Choose variant"})
+		choice := promptData([]string{"1. Создать аккаунт", "2. Найти аккаунт по URL", "3. Найти аккаунт по логину ", "4. Удалить аккаунт", "5. Выход", "Choose variant"})
 
-		switch choice {
-		case "1":
-			createAccount(vault)
-		case "2":
-			findAccount(vault)
-		case "3":
-			removeAccount(vault)
-		default:
+		menuFunc := menu[choice]
+		if menuFunc == nil {
 			fmt.Println("Выход из программы.")
 			break Menu
 		}
+		menuFunc(vault)
 	}
 }
 
@@ -44,9 +47,24 @@ func createAccount(vault *account.VaultWithDb) {
 	vault.AddAccount(*myAccount)
 }
 
-func findAccount(vault *account.VaultWithDb) {
+func findAccountByUrl(vault *account.VaultWithDb) {
 	url := promptData([]string{"Введите URL для поиска"})
-	data := vault.FindAccountsByURL(url)
+	data := vault.FindAccounts(url, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Url, str)
+	})
+	if len(data) == 0 {
+		output.PrintError("Not found")
+	}
+	for _, acc := range data {
+		acc.Output()
+	}
+}
+
+func findAccountByLogin(vault *account.VaultWithDb) {
+	login := promptData([]string{"Введите логин для поиска"})
+	data := vault.FindAccounts(login, func(acc account.Account, str string) bool {
+		return strings.Contains(acc.Login, str)
+	})
 	if len(data) == 0 {
 		output.PrintError("Not found")
 	}
