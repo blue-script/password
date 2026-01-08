@@ -5,6 +5,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/blue-script/password/encrypter"
 	"github.com/blue-script/password/output"
 	"github.com/fatih/color"
 )
@@ -29,10 +30,11 @@ type Vault struct {
 
 type VaultWithDb struct {
 	Vault
-	db Db
+	db  Db
+	enc encrypter.Encrypter
 }
 
-func NewVault(db Db) *VaultWithDb {
+func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 	file, err := db.Read()
 	if err != nil {
 		return &VaultWithDb{
@@ -40,7 +42,8 @@ func NewVault(db Db) *VaultWithDb {
 				Accounts:  []Account{},
 				UpdatedAt: time.Now(),
 			},
-			db: db,
+			db:  db,
+			enc: enc,
 		}
 	}
 
@@ -53,17 +56,20 @@ func NewVault(db Db) *VaultWithDb {
 				Accounts:  []Account{},
 				UpdatedAt: time.Now(),
 			},
-			db: db,
+			db:  db,
+			enc: enc,
 		}
 	}
 
 	return &VaultWithDb{
 		Vault: vault,
 		db:    db,
+		enc:   enc,
 	}
 }
 
 func (vault *VaultWithDb) AddAccount(acc Account) {
+	
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.save()
 }

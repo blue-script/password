@@ -5,9 +5,11 @@ import (
 	"strings"
 
 	"github.com/blue-script/password/account"
+	"github.com/blue-script/password/encrypter"
 	"github.com/blue-script/password/files"
 	"github.com/blue-script/password/output"
 	"github.com/fatih/color"
+	"github.com/joho/godotenv"
 )
 
 var menu = map[string]func(*account.VaultWithDb){
@@ -36,7 +38,12 @@ func menuCounter() func() {
 
 func main() {
 	fmt.Println("Password manager")
-	vault := account.NewVault(files.NewJsonDb("data.json"))
+	err := godotenv.Load()
+	if err != nil {
+		output.PrintError("Not found env file")
+	}
+
+	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
 	// vault := account.NewVault(cloud.NewCloudDb("data.json"))
 Menu:
 	for {
