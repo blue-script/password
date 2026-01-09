@@ -36,6 +36,7 @@ type VaultWithDb struct {
 
 func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 	file, err := db.Read()
+
 	if err != nil {
 		return &VaultWithDb{
 			Vault: Vault{
@@ -47,10 +48,12 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 		}
 	}
 
+	data := enc.Decryp(file)
 	var vault Vault
-	err = json.Unmarshal(file, &vault)
+	err = json.Unmarshal(data, &vault)
+	color.Cyan("Найдено %d аккаунтов", len(vault.Accounts))
 	if err != nil {
-		output.PrintError("Not successful unmarshal file data.json")
+		output.PrintError("Not successful unmarshal file data.vault")
 		return &VaultWithDb{
 			Vault: Vault{
 				Accounts:  []Account{},
@@ -69,7 +72,7 @@ func NewVault(db Db, enc encrypter.Encrypter) *VaultWithDb {
 }
 
 func (vault *VaultWithDb) AddAccount(acc Account) {
-	
+
 	vault.Accounts = append(vault.Accounts, acc)
 	vault.save()
 }
@@ -122,5 +125,6 @@ func (vault *VaultWithDb) save() {
 		output.PrintError("Not successful marshal account")
 		return
 	}
-	vault.db.Write(data)
+	encryptedData := vault.enc.Encryp(data)
+	vault.db.Write(encryptedData)
 }

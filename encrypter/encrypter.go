@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"fmt"
 	"io"
 	"os"
 )
@@ -24,6 +25,7 @@ func NewEncrypter() *Encrypter {
 
 func (enc *Encrypter) Encryp(plainStr []byte) []byte {
 	block, err := aes.NewCipher([]byte(enc.Key))
+	fmt.Println(err)
 	if err != nil {
 		panic(err.Error())
 	}

@@ -43,7 +43,7 @@ func main() {
 		output.PrintError("Not found env file")
 	}
 
-	vault := account.NewVault(files.NewJsonDb("data.json"), *encrypter.NewEncrypter())
+	vault := account.NewVault(files.NewJsonDb("data.vault"), *encrypter.NewEncrypter())
 	// vault := account.NewVault(cloud.NewCloudDb("data.json"))
 Menu:
 	for {

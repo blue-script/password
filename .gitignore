@@ -43,3 +43,4 @@ Thumbs.db
 *.txt
 data.json
 .env
+*.vault
